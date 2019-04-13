@@ -7,6 +7,7 @@
     "build": "next build && next export"
   },
   "dependencies": {
+    "@aws-amplify/auth": "^1.2.22",
     "@fortawesome/fontawesome-free": "^5.8.1",
     "@zeit/next-sass": "^1.0.1",
     "bulma": "^0.7.4",
