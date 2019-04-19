@@ -18,7 +18,9 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: ['react'],
-  rules: {},
+  rules: {
+    'no-console': ['error',{allow:['warn','error']}]
+  },
   settings: {
     react: {
       version: require('./package.json').dependencies.react

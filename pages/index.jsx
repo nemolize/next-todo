@@ -3,6 +3,9 @@ import { Head } from '../components/head'
 import { TodoList } from '../components/todo-list'
 import { DeleteModal } from '../components/delete-modal'
 import { TodoAdd } from '../components/todo-add'
+import Auth from '@aws-amplify/auth'
+import aws_config from '../aws-exports'
+import { Hub } from '@aws-amplify/core'
 
 export const STORAGE_KEY = 'todos'
 export const INITIAL_STATE = {
@@ -21,6 +24,32 @@ class IndexPage extends Component {
 
   componentDidMount() {
     this.setState(() => this.initialState)
+
+    Hub.listen('auth', data => {
+      switch (data.payload.event) {
+        case 'signIn':
+          this.setState({ authState: 'signedIn' })
+          this.setState({ authUser: data.payload.data })
+          break
+        case 'signIn_failure':
+          this.setState({ authState: 'signIn' })
+          this.setState({ authUser: null })
+          this.setState({ authError: data.payload.data })
+          break
+        default:
+          break
+      }
+    })
+
+    Auth.configure({
+      userPoolId: aws_config.aws_user_pools_id,
+      userPoolWebClientId: aws_config.aws_user_pools_web_client_id,
+      oauth: aws_config.oauth,
+    })
+
+    Auth.currentAuthenticatedUser({ bypassCache: true })
+      .then(authUser => this.setState({ authUser }))
+      .catch(err => console.warn(err))
   }
 
   get initialState() {
@@ -71,10 +100,16 @@ class IndexPage extends Component {
     this.deleteModalRef.current.show(todo)
   }
 
+  signIn = () => Auth.federatedSignIn()
+  signOut = () => Auth.signOut()
+
   render = () => (
     <>
       {this.state && (
         <>
+          {this.state.authUser && this.state.authUser.username}
+          <button onClick={this.signIn}>signIn</button>
+          <button onClick={this.signOut}>signOut</button>
           <Head title="next-todo" />
           <section className="hero">
             <div className="hero-body">
