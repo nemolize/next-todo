@@ -6,6 +6,9 @@ import { TodoAdd } from '../components/todo-add'
 import Auth from '@aws-amplify/auth'
 import aws_config from '../aws-exports'
 import { Hub } from '@aws-amplify/core'
+import { AWSAppSyncClient } from 'aws-appsync'
+import gql from 'graphql-tag'
+import { listTodos } from '../graphql/queries'
 
 export const STORAGE_KEY = 'todos'
 export const INITIAL_STATE = {
@@ -28,12 +31,10 @@ class IndexPage extends Component {
     Hub.listen('auth', data => {
       switch (data.payload.event) {
         case 'signIn':
-          this.setState({ authState: 'signedIn' })
-          this.setState({ authUser: data.payload.data })
+          this.setAuthUser(data.payload.data).then(() => this.getList())
           break
         case 'signIn_failure':
-          this.setState({ authState: 'signIn' })
-          this.setState({ authUser: null })
+          this.setAuthUser(null)
           this.setState({ authError: data.payload.data })
           break
         default:
@@ -47,9 +48,38 @@ class IndexPage extends Component {
       oauth: aws_config.oauth,
     })
 
-    Auth.currentAuthenticatedUser({ bypassCache: true })
-      .then(authUser => this.setState({ authUser }))
-      .catch(err => console.warn(err))
+    Auth.currentUserInfo().then(authUser => {
+      if (authUser) this.setAuthUser(authUser).then(() => this.getList())
+    })
+  }
+
+  setAuthUser = async authUser => this.setState({ authUser })
+
+  getAppSyncClient() {
+    return new AWSAppSyncClient({
+      url: aws_config.aws_appsync_graphqlEndpoint,
+      region: aws_config.aws_appsync_region,
+      auth: {
+        type: aws_config.aws_appsync_authenticationType,
+        jwtToken: async () =>
+          (await Auth.currentSession()
+            .then(data => {
+              return data
+            })
+            .catch(err => {
+              return err
+            }))
+            .getIdToken()
+            .getJwtToken(),
+      },
+    })
+  }
+
+  getList() {
+    this.client = this.getAppSyncClient()
+    this.client.query({
+      query: gql(listTodos),
+    }).then(({data:{listTodos:{items}}})=>this.setState({list:items}))
   }
 
   get initialState() {
