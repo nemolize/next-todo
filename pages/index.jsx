@@ -6,9 +6,10 @@ import { TodoAdd } from '../components/todo-add'
 import Auth from '@aws-amplify/auth'
 import aws_config from '../aws-exports'
 import { Hub } from '@aws-amplify/core'
-import { AWSAppSyncClient } from 'aws-appsync'
+import AWSAppSyncClient from 'aws-appsync'
 import gql from 'graphql-tag'
 import { listTodos } from '../graphql/queries'
+import { createTodo, deleteTodo, updateTodo } from '../graphql/mutations'
 
 export const STORAGE_KEY = 'todos'
 export const INITIAL_STATE = {
@@ -31,6 +32,7 @@ class IndexPage extends Component {
     Hub.listen('auth', data => {
       switch (data.payload.event) {
         case 'signIn':
+          this.client = this.getAppSyncClient()
           this.setAuthUser(data.payload.data).then(() => this.getList())
           break
         case 'signIn_failure':
@@ -49,7 +51,10 @@ class IndexPage extends Component {
     })
 
     Auth.currentUserInfo().then(authUser => {
-      if (authUser) this.setAuthUser(authUser).then(() => this.getList())
+      if (authUser) {
+        this.client = this.getAppSyncClient()
+        this.setAuthUser(authUser).then(() => this.getList())
+      }
     })
   }
 
@@ -75,11 +80,9 @@ class IndexPage extends Component {
     })
   }
 
-  getList() {
-    this.client = this.getAppSyncClient()
-    this.client.query({
-      query: gql(listTodos),
-    }).then(({data:{listTodos:{items}}})=>this.setState({list:items}))
+  getList = async () => {
+    const { data } = await this.client.query({ query: gql(listTodos) })
+    this.setState({ list: data.listTodos.items })
   }
 
   get initialState() {
@@ -95,35 +98,41 @@ class IndexPage extends Component {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }
 
-  add = name => {
-    this.setState(
-      state => ({
-        ...state,
-        list: state.list.concat({ id: state.counter, name, done: false }),
-        counter: state.counter + 1,
-      }),
-      () => (this.localStorage = this.state)
-    )
+  add = async name => {
+    await this.client.mutate({
+      mutation: gql(createTodo),
+      variables: { input: { name, done: false } },
+    })
+    this.getList()
   }
 
-  remove = todo => {
-    this.setState(
-      state => ({
-        ...state,
-        list: state.list.filter(({ id }) => id !== todo.id),
-      }),
-      () => (this.localStorage = this.state)
-    )
+  remove = async ({ id }) => {
+    await this.client.mutate({
+      mutation: gql(deleteTodo),
+      variables: { input: { id } },
+      update: (store) => {
+        const data = store.readQuery({ query: gql(listTodos) })
+        const index = data.listTodos.items.findIndex(todo => todo.id === id)
+        if (index > -1) data.listTodos.items.splice(index, 1)
+        store.writeQuery({ query: gql(listTodos), data })
+      },
+    })
+    this.getList()
   }
 
-  toggle = id => {
-    const newList = [...this.state.list]
-    const target = newList.find(todo => todo.id === id)
-    if (target) target.done = !target.done
-    this.setState(
-      state => ({ ...state, list: newList }),
-      () => (this.localStorage = this.state)
-    )
+  toggle = async todoId => {
+    const { id, done } = this.state.list.find(({ id }) => id === todoId)
+    await this.client.mutate({
+      mutation: gql(updateTodo),
+      variables: { input: { id, done: !done } },
+      update: store => {
+        const data = store.readQuery({ query: gql(listTodos) })
+        const index = data.listTodos.items.findIndex(todo => todo.id === id)
+        if (index > -1) data.listTodos.items.splice(index, 1)
+        store.writeQuery({ query: gql(listTodos), data })
+      },
+    })
+    this.getList()
   }
 
   showModal = todo => {
