@@ -5,7 +5,7 @@ import { DeleteModal } from '../components/delete-modal'
 import { TodoAdd } from '../components/todo-add'
 import Auth from '@aws-amplify/auth'
 import aws_config from '../aws-exports'
-import { Hub } from '@aws-amplify/core'
+import Amplify, { Hub } from '@aws-amplify/core'
 import AWSAppSyncClient from 'aws-appsync'
 import gql from 'graphql-tag'
 import { listTodos } from '../graphql/queries'
@@ -39,17 +39,10 @@ class IndexPage extends Component {
           this.setAuthUser(null)
           this.setState({ authError: data.payload.data })
           break
-        default:
-          break
       }
     })
 
-    Auth.configure({
-      userPoolId: aws_config.aws_user_pools_id,
-      userPoolWebClientId: aws_config.aws_user_pools_web_client_id,
-      oauth: aws_config.oauth,
-    })
-
+    Amplify.configure(aws_config)
     Auth.currentUserInfo().then(authUser => {
       if (authUser) {
         this.client = this.getAppSyncClient()
@@ -110,7 +103,7 @@ class IndexPage extends Component {
     await this.client.mutate({
       mutation: gql(deleteTodo),
       variables: { input: { id } },
-      update: (store) => {
+      update: store => {
         const data = store.readQuery({ query: gql(listTodos) })
         const index = data.listTodos.items.findIndex(todo => todo.id === id)
         if (index > -1) data.listTodos.items.splice(index, 1)
