@@ -26,7 +26,7 @@ class IndexPage extends Component {
   }
 
   componentDidMount() {
-    this.setState(() => this.initialState)
+    this.setState(() => INITIAL_STATE)
 
     Hub.listen('auth', data => {
       switch (data.payload.event) {
@@ -53,19 +53,6 @@ class IndexPage extends Component {
   getList = async () => {
     const { data } = await API.graphql({ query: listTodos })
     this.setState({ list: data.listTodos.items })
-  }
-
-  get initialState() {
-    return this.localStorage || INITIAL_STATE
-  }
-
-  get localStorage() {
-    const jsonString = localStorage.getItem(STORAGE_KEY)
-    return jsonString ? JSON.parse(jsonString) : null
-  }
-
-  set localStorage(state) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }
 
   add = async name => {
