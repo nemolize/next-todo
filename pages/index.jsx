@@ -49,7 +49,7 @@ class IndexPage extends Component {
 
   getList = async () => {
     const { data } = await API.graphql({ query: listTodos })
-    this.setState({ list: data.listTodos.items })
+    this.setState({ list: data.listTodos.items, loading: false })
   }
 
   add = async name => {
@@ -67,7 +67,10 @@ class IndexPage extends Component {
 
   toggle = async todoId => {
     const { id, done } = this.state.list.find(({ id }) => id === todoId)
-    await API.graphql({query:updateTodo,variables:{ input: { id, done: !done } }})
+    await API.graphql({
+      query: updateTodo,
+      variables: { input: { id, done: !done } },
+    })
     await this.getList()
   }
 
@@ -82,9 +85,12 @@ class IndexPage extends Component {
     <>
       {this.state && (
         <>
-          {this.state.authUser && this.state.authUser.username}
-          <button onClick={this.signIn}>signIn</button>
-          <button onClick={this.signOut}>signOut</button>
+          {this.state.authUser ? (
+            <button className="button" onClick={this.signOut}>signOut</button>
+          ) : (
+            <button className="button" onClick={this.signIn}>signIn</button>
+          )}
+
           <Head title="next-todo" />
           <section className="hero">
             <div className="hero-body">
@@ -100,14 +106,37 @@ class IndexPage extends Component {
             </div>
           </section>
           <section className="container">
-            <TodoAdd onAdd={this.add} />
-            <TodoList
-              todos={this.state.list}
-              onToggle={this.toggle}
-              onClickRemove={this.showModal}
-            />
+            {!this.state.authUser ? (
+              <div className="notification">
+                <p>Please sign-up or sign-in to manage your todo list.</p>
+                <div
+                  className="button is-primary is-pulled-right"
+                  onClick={this.signIn}
+                >
+                  Sign in
+                </div>
+                <div className="is-clearfix" />
+              </div>
+            ) : this.state.loading ? (
+              <>
+                <div>
+                  <i className="fas fa-spin fa-circle-notch" />
+                  loading
+                </div>
+              </>
+            ) : (
+              <>
+                <TodoAdd onAdd={this.add} />
+                <TodoList
+                  todos={this.state.list}
+                  onToggle={this.toggle}
+                  onClickRemove={this.showModal}
+                />
+
+                <DeleteModal ref={this.deleteModalRef} onRemove={this.remove} />
+              </>
+            )}
           </section>
-          <DeleteModal ref={this.deleteModalRef} onRemove={this.remove} />
         </>
       )}
     </>
