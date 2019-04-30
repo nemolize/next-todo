@@ -1,12 +1,12 @@
 {
-    "projectName": "next-todo",
+    "projectName": "todolist",
     "version": "2.0",
     "frontend": "javascript",
     "javascript": {
         "framework": "react",
         "config": {
-            "SourceDir": ".",
-            "DistributionDir": "out",
+            "SourceDir": "src",
+            "DistributionDir": "build",
             "BuildCommand": "npm run-script build",
             "StartCommand": "npm run-script start"
         }

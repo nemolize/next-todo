@@ -1,6 +1,6 @@
 import React from 'react'
 import IndexPage, { INITIAL_STATE, STORAGE_KEY } from '../pages'
-import { shallow } from 'enzyme'
+import { shallow } from 'enzyme/build'
 import { TodoList } from '../components/todo-list'
 
 const initialState = {

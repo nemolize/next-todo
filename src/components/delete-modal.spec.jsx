@@ -1,5 +1,5 @@
 import React, { createRef } from 'react'
-import { shallow } from 'enzyme'
+import { shallow } from 'enzyme/build'
 import { DeleteModal } from './delete-modal'
 
 const dummyTodo = { id: 1, name: 'dummyTodo', done: false }

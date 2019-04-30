@@ -6,5 +6,7 @@
             "authcognitof1aacacf",
             "Outputs.UserPoolId"
         ]
-    }
+    },
+    "S3DeploymentBucket": "todolist-20190501032535-deployment",
+    "S3DeploymentRootKey": "amplify-appsync-files/fbf647eaca53a75a8dbfd4060ebbfe5c103e25bb"
 }

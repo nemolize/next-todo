@@ -1,6 +1,6 @@
 import React from 'react'
 import { TodoList } from './todo-list'
-import { shallow } from 'enzyme'
+import { shallow } from 'enzyme/build'
 
 const dummyTodos = [{ id: 1, name: 'dummyTodo', done: false }]
 
