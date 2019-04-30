@@ -12,11 +12,8 @@ import API from '@aws-amplify/api'
 
 export const STORAGE_KEY = 'todos'
 export const INITIAL_STATE = {
-  list: [
-    { id: 1, done: true, name: 'Buy a milk for my boss' },
-    { id: 2, done: false, name: 'Send a mail to a client' },
-  ],
-  counter: 3,
+  loading: true,
+  list: [],
 }
 
 class IndexPage extends Component {
