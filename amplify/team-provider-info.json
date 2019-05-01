@@ -1,0 +1,21 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "next-todo-20190502040429-authRole",
+            "UnauthRoleArn": "arn:aws:iam::119913110256:role/next-todo-20190502040429-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::119913110256:role/next-todo-20190502040429-authRole",
+            "Region": "ap-northeast-1",
+            "DeploymentBucketName": "next-todo-20190502040429-deployment",
+            "UnauthRoleName": "next-todo-20190502040429-unauthRole",
+            "StackName": "next-todo-20190502040429",
+            "StackId": "arn:aws:cloudformation:ap-northeast-1:119913110256:stack/next-todo-20190502040429/f29aca30-6c43-11e9-aada-0e842c318628"
+        },
+        "categories": {
+            "auth": {
+                "cognitobbf85608": {
+                    "hostedUIProviderCreds": "[{\"ProviderName\":\"Google\",\"client_id\":\"908350080293-02oershio45k5r4kr5kkgu8hq5e5dh0r.apps.googleusercontent.com\",\"client_secret\":\"WkWVeJZvK6UrSRrnyNqESTaw\"}]"
+                }
+            }
+        }
+    }
+}
