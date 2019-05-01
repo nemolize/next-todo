@@ -51,7 +51,7 @@ jobs:
       - deploy:
           command: |
             npm config set unsafe-perm true # https://goo.gl/LH2aMY
-            npx now alias -t ${NOW_TOKEN} $(npx now -n next-todo -t ${NOW_TOKEN} out) next-example-todo.now.sh
+            npx now alias -t ${NOW_TOKEN} $(npx now -n next-todo -t ${NOW_TOKEN} dist) next-example-todo.now.sh
 
 workflows:
   version: 2

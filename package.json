@@ -1,10 +1,10 @@
 {
   "name": "next-todo",
   "scripts": {
-    "dev": "next",
+    "dev": "next src",
     "test": "jest --coverage",
     "lint": "eslint --ext .js,.jsx --ignore-path .gitignore .",
-    "build": "next build && next export"
+    "build": "next build src && next export src -o dist"
   },
   "dependencies": {
     "@aws-amplify/api": "^1.0.33",

@@ -9,7 +9,7 @@
 # production
 /build
 /dist
-/.next
+src/.next
 
 # misc
 .DS_Store
@@ -25,6 +25,5 @@ amplify/\#current-cloud-backend
 amplify/.config/local-*
 amplify/backend/amplify-meta.json
 amplify/backend/awscloudformation
-amplify/team-provider-info.json
 aws-exports.js
 awsconfiguration.json
