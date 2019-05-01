@@ -3,14 +3,13 @@ import { Head } from '../components/head'
 import { TodoList } from '../components/todo-list'
 import { DeleteModal } from '../components/delete-modal'
 import { TodoAdd } from '../components/todo-add'
-import Auth from '@aws-amplify/auth/lib/index'
+import Auth from '@aws-amplify/auth'
 import aws_config from '../aws-exports'
-import Amplify, { Hub } from '@aws-amplify/core/lib/index'
+import Amplify, { Hub } from '@aws-amplify/core'
 import { listTodos } from '../graphql/queries'
 import { createTodo, deleteTodo, updateTodo } from '../graphql/mutations'
-import API from '@aws-amplify/api/lib/index'
+import API from '@aws-amplify/api'
 
-export const STORAGE_KEY = 'todos'
 export const INITIAL_STATE = {
   loading: true,
   list: [],
@@ -38,11 +37,14 @@ class IndexPage extends Component {
     })
 
     Amplify.configure(aws_config)
-    Auth.currentUserInfo().then(authUser => {
-      if (authUser) {
-        this.setAuthUser(authUser).then(() => this.getList())
-      }
-    })
+    this.authorize()
+  }
+
+  authorize = async () => {
+    const authUser=await Auth.currentUserInfo()
+    if (authUser) {
+      this.setAuthUser(authUser).then(() => this.getList())
+    }
   }
 
   setAuthUser = async authUser => this.setState({ authUser })
@@ -86,9 +88,13 @@ class IndexPage extends Component {
       {this.state && (
         <>
           {this.state.authUser ? (
-            <button className="button" onClick={this.signOut}>signOut</button>
+            <button className="button" onClick={this.signOut}>
+              signOut
+            </button>
           ) : (
-            <button className="button" onClick={this.signIn}>signIn</button>
+            <button className="button" onClick={this.signIn}>
+              signIn
+            </button>
           )}
 
           <Head title="next-todo" />
